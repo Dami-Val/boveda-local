@@ -1,0 +1,16 @@
+# Tus datos: NUNCA se suben al repositorio
+boveda.json
+boveda.json.*
+hello.dat
+*.csv
+
+# Ejecutable y archivos de compilación (el .exe se publica en Releases)
+*.exe
+dist/
+*.zip
+
+# Sistema y editores
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/

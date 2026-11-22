@@ -1,0 +1,15 @@
+{
+  "name": "boveda-local",
+  "version": "1.0.0",
+  "description": "Gestor de contraseñas local y cifrado para Windows, sin nube ni dependencias.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test.mjs",
+    "iniciar": "node server.cjs",
+    "construir": "node construir.cjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
