@@ -1,15 +1,18 @@
 {
   "name": "boveda-local",
-  "version": "1.0.0",
-  "description": "Gestor de contraseñas local y cifrado para Windows, sin nube ni dependencias.",
+  "version": "2.0.0",
+  "description": "Gestor de contraseñas local y cifrado, sin nube.",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node test.mjs",
-    "iniciar": "node server.cjs",
-    "construir": "node construir.cjs"
+    "dev": "tauri dev",
+    "construir": "tauri build --no-bundle"
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.6"
   }
 }
