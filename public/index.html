@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="es" data-tema="vidrio">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="token" content="__TOKEN__">
+<title>Bóveda</title>
+<style>
+  /* Identidad «Papel de vidrio» de Cuentas Claras (DESIGN.md, ADR 0028), en CSS plano. */
+  @font-face { font-family:"IBM Plex Sans"; font-weight:400 600; font-display:swap; src:url(/fuentes/plex-sans.woff2) format("woff2"); }
+  @font-face { font-family:"IBM Plex Mono"; font-weight:400; font-display:swap; src:url(/fuentes/plex-mono-400.woff2) format("woff2"); }
+  @font-face { font-family:"IBM Plex Mono"; font-weight:500; font-display:swap; src:url(/fuentes/plex-mono-500.woff2) format("woff2"); }
+  @font-face { font-family:"Newsreader"; font-weight:500 600; font-display:swap; src:url(/fuentes/newsreader.woff2) format("woff2"); }
+
+  :root {
+    --f-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --f-display: "Newsreader", Georgia, "Times New Roman", serif;
+    --f-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
+    --r-marco: 20px; --r-seccion: 8px; --radio: 8px; --r-opcion: 6px;
+
+    --texto:#1d2520; --texto-2:#4a584e; --texto-3:#58645c;
+    --acento:#23407a; --acento-hover:#1a3264; --acento-suave:#dde4f0; --sobre-acento:#fff;
+    --peligro:#9e352b; --peligro-suave:#f3dbd5; --ok:#2c6941;
+    --superficie:#f8faf4;
+    --wallpaper:
+      radial-gradient(60% 50% at 6% 8%, #cfe2c8 0%, transparent 72%),
+      radial-gradient(52% 46% at 94% 6%, #c9d6ee 0%, transparent 72%),
+      radial-gradient(56% 52% at 84% 96%, #d6e6cc 0%, transparent 72%),
+      radial-gradient(46% 42% at 8% 92%, #d8dff0 0%, transparent 72%),
+      #e5eadd;
+    --velo: radial-gradient(125% 125% at 50% 0%, rgb(255 255 255 / .12), rgb(255 255 255 / .3));
+    --vidrio: rgb(250 252 247 / .66); --vidrio-fuerte: rgb(250 252 247 / .9); --vidrio-dialogo: rgb(250 252 247 / .94);
+    --vidrio-borde: rgb(255 255 255 / .7);
+    --vidrio-sombra: 0 10px 34px -10px rgb(29 37 32 / .2), 0 1px 3px rgb(29 37 32 / .05), inset 0 1px 0 rgb(255 255 255 / .85);
+    --vidrio-brillo: rgb(255 255 255 / .18);
+    --sombra-lg: 0 18px 40px -10px rgb(29 37 32 / .25), 0 2px 6px rgb(29 37 32 / .08);
+    --sombra-sm: 0 1px 2px rgb(29 37 32 / .06);
+    --campo: rgb(255 255 255 / .62); --borde-campo: rgb(29 37 32 / .3);
+    --boton: rgb(255 255 255 / .62); --boton-hover: rgb(255 255 255 / .92);
+    --item-hover: rgb(255 255 255 / .45); --item-activo: rgb(255 255 255 / .85);
+    --linea: rgb(29 37 32 / .09); --overlay: rgb(29 37 32 / .4);
+    --blur: 14px;
+    --marca-tinta:#23407a; --marca-margen:#b9473a; --marca-loseta-1:#f5f7f2; --marca-loseta-2:#e4eadf;
+    color-scheme: light;
+  }
+  :root[data-tema=vidrio-oscuro] {
+    --texto:#e5eae2; --texto-2:#b2bcb2; --texto-3:#8f9a90;
+    --acento:#93acdd; --acento-hover:#adc1e8; --acento-suave:#232e45; --sobre-acento:#0f1520;
+    --peligro:#ee9a8e; --peligro-suave:#3e2220; --ok:#8cc49b; --superficie:#1b201c;
+    --wallpaper:
+      radial-gradient(60% 50% at 6% 8%, #24503a 0%, transparent 72%),
+      radial-gradient(52% 46% at 94% 6%, #283f72 0%, transparent 72%),
+      radial-gradient(56% 52% at 84% 96%, #1f4430 0%, transparent 72%),
+      radial-gradient(46% 42% at 8% 92%, #22345f 0%, transparent 72%),
+      #0e1210;
+    --velo: radial-gradient(125% 125% at 50% 0%, rgb(6 8 12 / .1), rgb(6 8 12 / .45));
+    --vidrio: rgb(22 28 24 / .66); --vidrio-fuerte: rgb(22 28 24 / .9); --vidrio-dialogo: rgb(22 28 24 / .95);
+    --vidrio-borde: rgb(255 255 255 / .1);
+    --vidrio-sombra: 0 12px 36px -10px rgb(0 0 0 / .55), inset 0 1px 0 rgb(255 255 255 / .1);
+    --vidrio-brillo: rgb(255 255 255 / .05);
+    --sombra-lg: 0 16px 40px -8px rgb(0 0 0 / .6); --sombra-sm: 0 1px 2px rgb(0 0 0 / .3);
+    --campo: rgb(255 255 255 / .07); --borde-campo: rgb(255 255 255 / .28);
+    --boton: rgb(255 255 255 / .09); --boton-hover: rgb(255 255 255 / .17);
+    --item-hover: rgb(255 255 255 / .06); --item-activo: rgb(255 255 255 / .13);
+    --linea: rgb(255 255 255 / .09); --overlay: rgb(0 0 0 / .66);
+    --marca-tinta:#9db3e8; --marca-margen:#d07a6e; --marca-loseta-1:#24302b; --marca-loseta-2:#141b18;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-tema=sistema] {
+      --texto:#e5eae2; --texto-2:#b2bcb2; --texto-3:#8f9a90;
+      --acento:#93acdd; --acento-hover:#adc1e8; --acento-suave:#232e45; --sobre-acento:#0f1520;
+      --peligro:#ee9a8e; --peligro-suave:#3e2220; --ok:#8cc49b; --superficie:#1b201c;
+      --wallpaper:
+        radial-gradient(60% 50% at 6% 8%, #24503a 0%, transparent 72%),
+        radial-gradient(52% 46% at 94% 6%, #283f72 0%, transparent 72%),
+        radial-gradient(56% 52% at 84% 96%, #1f4430 0%, transparent 72%),
+        radial-gradient(46% 42% at 8% 92%, #22345f 0%, transparent 72%),
+        #0e1210;
+      --velo: radial-gradient(125% 125% at 50% 0%, rgb(6 8 12 / .1), rgb(6 8 12 / .45));
+      --vidrio: rgb(22 28 24 / .66); --vidrio-fuerte: rgb(22 28 24 / .9); --vidrio-dialogo: rgb(22 28 24 / .95);
+      --vidrio-borde: rgb(255 255 255 / .1);
+      --vidrio-sombra: 0 12px 36px -10px rgb(0 0 0 / .55), inset 0 1px 0 rgb(255 255 255 / .1);
+      --vidrio-brillo: rgb(255 255 255 / .05);
+      --sombra-lg: 0 16px 40px -8px rgb(0 0 0 / .6); --sombra-sm: 0 1px 2px rgb(0 0 0 / .3);
+      --campo: rgb(255 255 255 / .07); --borde-campo: rgb(255 255 255 / .28);
+      --boton: rgb(255 255 255 / .09); --boton-hover: rgb(255 255 255 / .17);
+      --item-hover: rgb(255 255 255 / .06); --item-activo: rgb(255 255 255 / .13);
+      --linea: rgb(255 255 255 / .09); --overlay: rgb(0 0 0 / .66);
+      --marca-tinta:#9db3e8; --marca-margen:#d07a6e; --marca-loseta-1:#24302b; --marca-loseta-2:#141b18;
+      color-scheme: dark;
+    }
+  }
+  /* Terminal: verde fósforo sobre negro, sin cristal. */
+  :root[data-tema=terminal] {
+    --f-sans: Consolas, "Cascadia Mono", "Courier New", monospace; --f-display: var(--f-sans); --f-mono: var(--f-sans);
+    --r-marco: 0px; --r-seccion: 0px; --r-opcion: 0px;
+    --texto:#33ff66; --texto-2:#2bd957; --texto-3:#22a344;
+    --acento:#33ff66; --acento-hover:#5cff85; --acento-suave:#0b2a14; --sobre-acento:#000;
+    --peligro:#ff5f56; --peligro-suave:#2a0d0b; --ok:#33ff66; --superficie:#030803;
+    --wallpaper:#000; --velo:none;
+    --vidrio:#030803; --vidrio-fuerte:#030803; --vidrio-dialogo:#030803; --vidrio-borde:#145c26;
+    --vidrio-sombra:none; --vidrio-brillo:transparent; --sombra-lg:none; --sombra-sm:none;
+    --campo:#000; --borde-campo:#145c26; --boton:#030803; --boton-hover:#0b2a14;
+    --item-hover:#0b2a14; --item-activo:#0b2a14; --linea:#145c26; --overlay:rgb(0 0 0 / .7); --blur:0px;
+    --marca-tinta:#33ff66; --marca-margen:#ff5f56; --marca-loseta-1:#030803; --marca-loseta-2:#030803;
+    color-scheme: dark;
+  }
+  :root[data-tema=terminal] body { text-shadow:0 0 4px rgb(51 255 102 / .35); }
+  :root[data-tema=terminal] h1::before, :root[data-tema=terminal] h2::before { content:"> " / ""; }
+  :root[data-tema=terminal] #bloqueo h1::after { content:"_" / ""; animation:parpadeo 1s steps(1) infinite; }
+  :root[data-tema=terminal] button:not(.info):not(.nav):not(.icono-boton)::before { content:"[ " / ""; }
+  :root[data-tema=terminal] button:not(.info):not(.nav):not(.icono-boton)::after { content:" ]" / ""; }
+  :root[data-tema=terminal] .icono-boton { border-radius:0; }
+  :root[data-tema=terminal] .avatar { background:var(--acento) !important; color:#000 !important; border-radius:0; text-shadow:none; }
+  :root[data-tema=terminal] button.primario { text-shadow:none; }
+  @keyframes parpadeo { 50% { opacity:0; } }
+
+  /* Sin transparencia (preferencia del sistema): cristal sólido, mismos tonos. */
+  @media (prefers-reduced-transparency: reduce) {
+    :root { --vidrio:var(--superficie); --vidrio-fuerte:var(--superficie); --vidrio-dialogo:var(--superficie); --campo:var(--superficie); --boton:var(--superficie); --blur:0px; }
+  }
+
+  /* ---------- base ---------- */
+  * { box-sizing:border-box; scrollbar-width:thin; scrollbar-color:var(--borde-campo) transparent; }
+  html, body { min-height:100%; }
+  body { margin:0; font-family:var(--f-sans); font-size:.9375rem; line-height:1.4rem; color:var(--texto); background:#e5eadd; -webkit-font-smoothing:antialiased; }
+  body::before { content:""; position:fixed; inset:0; z-index:-2; background:var(--wallpaper); }
+  body::after { content:""; position:fixed; inset:0; z-index:-1; background:var(--velo); }
+  :root[data-tema=vidrio-oscuro] body, :root[data-tema=terminal] body { background:#0e1210; }
+  ::selection { background:var(--acento-suave); color:var(--texto); }
+  :focus-visible { outline:2px solid var(--acento); outline-offset:2px; }
+  button, input, select, textarea { font:inherit; color:inherit; }
+  h1, h2 { font-family:var(--f-display); font-weight:600; letter-spacing:-.01em; }
+  [hidden] { display:none !important; }
+
+  .vidrio {
+    position:relative; background:var(--vidrio); border:1px solid var(--vidrio-borde); border-radius:var(--r-seccion);
+    -webkit-backdrop-filter:blur(var(--blur)) saturate(130%); backdrop-filter:blur(var(--blur)) saturate(130%);
+    box-shadow:var(--vidrio-sombra);
+  }
+  .vidrio::before { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(180deg, var(--vidrio-brillo) 0%, rgb(255 255 255 / 0) 12%); }
+  .marco { border-radius:var(--r-marco); }
+
+  /* campos */
+  input, select, textarea {
+    width:100%; min-height:2.75rem; padding:.55rem .875rem; border-radius:var(--radio);
+    background:var(--campo); border:1px solid var(--borde-campo); caret-color:var(--acento);
+    transition:border-color 150ms ease, box-shadow 150ms ease;
+  }
+  textarea { min-height:5rem; resize:vertical; }
+  input::placeholder, textarea::placeholder { color:var(--texto-3); }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline:none; border-color:var(--acento); box-shadow:0 0 0 3px color-mix(in srgb, var(--acento) 22%, transparent); }
+  input[type=checkbox] { width:1.1rem; min-height:0; height:1.1rem; padding:0; accent-color:var(--acento); }
+  input[type=color] { padding:4px; height:2.75rem; cursor:pointer; }
+  select option { background:var(--superficie); color:var(--texto); }
+  label, legend { display:block; font-size:.875rem; font-weight:500; color:var(--texto-2); margin:1rem 0 .35rem; padding:0; }
+  label.check { display:flex; gap:.6rem; align-items:center; color:var(--texto); font-weight:400; margin:.5rem 0; }
+  fieldset { border:0; padding:0; margin:0; }
+
+  /* botones: rectangulares de 8 px; primario en tinta azul, secundario de cristal */
+  button {
+    display:inline-flex; align-items:center; justify-content:center; gap:.4rem; white-space:nowrap;
+    height:2.5rem; padding:0 1rem; border-radius:var(--radio); font-weight:500; cursor:pointer;
+    background:var(--boton); border:1px solid var(--borde-campo); box-shadow:var(--sombra-sm);
+    transition:background-color 150ms ease, color 150ms ease;
+  }
+  button:hover { background:var(--boton-hover); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  button.primario { background:var(--acento); border-color:var(--acento); color:var(--sobre-acento); }
+  button.primario:hover { background:var(--acento-hover); }
+  button.peligro { color:var(--peligro); }
+  button.peligro[data-confirmar] { background:var(--peligro-suave); border-color:var(--peligro); }
+  button.chico { height:2rem; padding:0 .75rem; font-size:.875rem; }
+  button svg { flex:none; }
+  /* Botón de solo ícono, como .vidrio-boton de Cuentas Claras: redondo, de cristal, con un leve aumento al pasar. */
+  .icono-boton {
+    width:2.25rem; height:2.25rem; padding:0; border-radius:9999px; flex:none; color:var(--texto-2);
+    background:var(--boton); border:1px solid var(--vidrio-borde);
+    box-shadow:0 2px 8px -2px rgb(29 37 32 / .14), inset 0 1px 0 rgb(255 255 255 / .5);
+    transition:transform 180ms cubic-bezier(.22, 1, .36, 1), background-color 150ms ease, color 150ms ease;
+  }
+  .icono-boton:hover { background:var(--boton-hover); color:var(--texto); transform:scale(1.06); }
+  .icono-boton:active { transform:scale(.94); }
+  .icono-boton.peligro { color:var(--peligro); }
+  .barra .icono-boton { width:2.5rem; height:2.5rem; }
+  .fila .icono-boton { width:2.75rem; height:2.75rem; }
+
+  /* ---------- bloqueo ---------- */
+  #bloqueo { min-height:100vh; display:grid; place-items:center; padding:16px; }
+  #bloqueo form { width:min(400px, 100%); padding:32px 28px 28px; }
+  .marca { display:flex; align-items:center; gap:.7rem; }
+  .marca svg { flex:none; filter:drop-shadow(0 1px 2px rgb(29 37 32 / .16)); }
+  .marca b { font-family:var(--f-display); font-size:1.35rem; font-weight:600; color:var(--marca-tinta); }
+  #bloqueo .marca { margin-bottom:1.5rem; }
+  #bloqueo h1 { margin:0; font-size:1.75rem; line-height:2.1rem; }
+  #ayuda-bloqueo { color:var(--texto-3); margin:.35rem 0 0; font-size:.875rem; }
+  #bloqueo button { width:100%; height:2.75rem; margin-top:1.25rem; }
+  #bloqueo #btn-hello { margin-top:.6rem; }
+
+  /* ---------- app ---------- */
+  #app { display:grid; grid-template-columns:248px minmax(0, 1fr); gap:12px; min-height:100vh; padding:12px; }
+  aside { padding:18px 12px; align-self:start; position:sticky; top:12px; max-height:calc(100vh - 24px); overflow:auto; }
+  aside .marca { padding:0 8px; }
+  aside h2 { font-family:var(--f-sans); font-size:.8125rem; font-weight:500; text-transform:uppercase; letter-spacing:.06em; color:var(--texto-3); margin:1.5rem 8px .5rem; }
+  nav button.nav {
+    display:flex; justify-content:flex-start; gap:.65rem; width:100%; height:2.5rem; padding:0 .75rem; margin:2px 0;
+    background:none; border:0; box-shadow:none; font-weight:400; color:var(--texto-2);
+  }
+  nav button.nav span:nth-child(2) { flex:1; text-align:left; }
+  nav button.nav:hover { background:var(--item-hover); }
+  nav button.nav[aria-current=true] { background:var(--item-activo); color:var(--texto); font-weight:500; box-shadow:0 2px 10px -2px rgb(29 37 32 / .12), inset 0 1px 0 rgb(255 255 255 / .6); }
+  nav button.nav span:nth-child(2) { overflow:hidden; text-overflow:ellipsis; }
+  nav .cuenta { font-family:var(--f-mono); font-variant-numeric:tabular-nums; font-size:.8125rem; color:var(--texto-3); }
+  nav .papelera { margin-top:.75rem !important; }
+  #btn-nueva-carpeta { width:100%; margin-top:.75rem; }
+
+  main { min-width:0; display:flex; flex-direction:column; gap:12px; }
+  .barra { display:flex; gap:8px; flex-wrap:wrap; padding:10px; }
+  .barra input { flex:1 1 240px; width:auto; min-height:2.5rem; }
+  .hoja { padding:20px 20px 12px; }
+  .titulo-vista { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 8px; }
+  .titulo-vista h1 { font-size:1.625rem; line-height:2rem; margin:0 auto 0 0; }
+  #lista { list-style:none; margin:0; padding:0; }
+  #lista:empty { display:none; }
+  #lista li { display:flex; align-items:center; gap:12px; min-height:3.5rem; padding:8px; border-top:1px solid var(--linea); border-radius:var(--radio); transition:background-color 150ms ease; }
+  #lista li:first-child { border-top-color:transparent; }
+  #lista li:hover { background:var(--item-hover); }
+  .info { flex:1; min-width:0; display:block; height:auto; padding:0; border:0; background:none; box-shadow:none; text-align:left; cursor:pointer; font-weight:400; }
+  .info:hover { background:none; }
+  div.info { cursor:default; }
+  .info b, .info small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .info b { font-weight:500; }
+  .info small { color:var(--texto-3); font-size:.8125rem; }
+  .acciones-fila { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .avatar { width:2.25rem; height:2.25rem; border-radius:9999px; display:grid; place-items:center; font-weight:600; font-size:.875rem; flex:none; }
+  .tono-0 { background:#e4eaf8; color:#2b4384; } .tono-1 { background:#e3f1ea; color:#1d6b45; } .tono-2 { background:#f6ead9; color:#8a5410; }
+  .tono-3 { background:#f1e4ee; color:#7a3768; } .tono-4 { background:#e2eef3; color:#245e74; } .tono-5 { background:#ece8f6; color:#4f3f8a; }
+  .tono-6 { background:#f3dbd5; color:#9e352b; } .tono-7 { background:#e1e5e4; color:#56606a; }
+  /* el mismo tono como color de ícono (carpetas en el riel); en oscuro, el color claro del par */
+  .tinta-0 { color:#2b4384; } .tinta-1 { color:#1d6b45; } .tinta-2 { color:#8a5410; } .tinta-3 { color:#7a3768; }
+  .tinta-4 { color:#245e74; } .tinta-5 { color:#4f3f8a; } .tinta-6 { color:#9e352b; } .tinta-7 { color:#56606a; }
+  :root[data-tema=vidrio-oscuro] [class*=tinta-], :root[data-tema=terminal] [class*=tinta-] { filter:brightness(2.2) saturate(.8); }
+  @media (prefers-color-scheme: dark) { :root[data-tema=sistema] [class*=tinta-] { filter:brightness(2.2) saturate(.8); } }
+  .avatar svg { width:1.15rem; height:1.15rem; }
+  .avatar.grande { width:3rem; height:3rem; font-size:1.05rem; }
+  .avatar.grande svg { width:1.5rem; height:1.5rem; }
+  #vacio { color:var(--texto-3); text-align:center; padding:40px 16px; margin:0; }
+
+  /* ---------- diálogos ---------- */
+  dialog {
+    width:min(520px, calc(100% - 32px)); max-height:calc(100vh - 48px); padding:0; color:var(--texto);
+    background:var(--vidrio-dialogo); border:1px solid var(--vidrio-borde); border-radius:var(--r-seccion);
+    -webkit-backdrop-filter:blur(24px) saturate(140%); backdrop-filter:blur(24px) saturate(140%);
+    box-shadow:var(--sombra-lg), inset 0 1px 0 rgb(255 255 255 / .5);
+  }
+  dialog[open] { animation:sube 220ms cubic-bezier(.16, 1, .3, 1) both; }
+  dialog::backdrop { background:var(--overlay); }
+  dialog form { padding:24px 24px 0; }
+  dialog h2 { margin:0; font-size:1.625rem; line-height:2rem; }
+  dialog p { color:var(--texto-3); font-size:.875rem; }
+  @keyframes sube { from { opacity:0; transform:translateY(14px) scale(.985); } to { opacity:1; transform:none; } }
+  .fila { display:flex; gap:8px; }
+  .fila input { flex:1; }
+  #f-password, #f-totp { font-family:var(--f-mono); }
+  .acciones { display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; margin:1.5rem -24px 0; padding:16px 24px; background:var(--item-hover); }
+  .acciones .peligro, .acciones .izquierda { margin-right:auto; }
+  .rejilla { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; }
+  .iconos { display:flex; flex-wrap:wrap; gap:6px; }
+  .icono {
+    position:relative; margin:0; width:2.5rem; height:2.5rem; display:grid; place-items:center; font-size:1.1rem; color:var(--texto);
+    border-radius:9999px; background:var(--boton); border:1px solid var(--vidrio-borde); cursor:pointer;
+    box-shadow:0 2px 8px -2px rgb(29 37 32 / .14), inset 0 1px 0 rgb(255 255 255 / .5);
+    transition:transform 180ms cubic-bezier(.22, 1, .36, 1), background-color 150ms ease;
+  }
+  .icono:hover { background:var(--boton-hover); transform:scale(1.06); }
+  .icono input { position:absolute; inset:0; width:100%; height:100%; min-height:0; margin:0; opacity:0; cursor:pointer; }
+  .icono:has(input:checked) { background:var(--acento-suave); border-color:var(--acento); box-shadow:inset 0 0 0 1px var(--acento); }
+  .icono:has(input:focus-visible) { outline:2px solid var(--acento); outline-offset:2px; }
+  .icono span { font-size:.8125rem; font-weight:600; color:var(--texto-2); }
+  .icono svg { width:1.15rem; height:1.15rem; color:var(--texto-2); }
+  .icono:has(input:checked) svg, .icono:has(input:checked) span { color:var(--acento); }
+  .selector { display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:start; }
+  .selector .avatar.grande { margin-top:2px; }
+  .colores { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .muestra {
+    position:relative; margin:0; width:1.85rem; height:1.85rem; border-radius:9999px; cursor:pointer;
+    border:1px solid var(--borde-campo); display:grid; place-items:center; font-size:.6875rem; font-weight:600; color:var(--texto-2);
+  }
+  .muestra.auto { width:auto; padding:0 .6rem; background:var(--boton); }
+  .muestra input { position:absolute; inset:0; width:100%; height:100%; min-height:0; margin:0; opacity:0; cursor:pointer; }
+  .muestra:has(input:checked) { outline:2px solid var(--acento); outline-offset:2px; }
+  .muestra:has(input:focus-visible) { box-shadow:0 0 0 4px color-mix(in srgb, var(--acento) 30%, transparent); }
+
+  #aviso {
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%); max-width:calc(100% - 32px); padding:.7rem 1rem;
+    background:var(--vidrio-dialogo); border:1px solid var(--vidrio-borde); border-radius:var(--radio); box-shadow:var(--sombra-lg);
+    -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); animation:sube 220ms cubic-bezier(.16, 1, .3, 1) both;
+  }
+  .error { color:var(--peligro); min-height:1.2em; margin:.75rem 0 0; font-size:.875rem; }
+
+  @media (max-width: 760px) {
+    #app { grid-template-columns:1fr; padding:8px; gap:8px; }
+    aside { position:static; max-height:none; }
+    .hoja { padding:16px 12px 8px; }
+    .rejilla { grid-template-columns:1fr; }
+    button { height:2.75rem; }
+    .icono-boton, .barra .icono-boton { width:2.75rem; height:2.75rem; }
+    .selector { grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration:1ms !important; transition-duration:1ms !important; }
+    .icono:hover { transform:none; }
+  }
+</style>
+</head>
+<body>
+<!-- Isotipo de la Bóveda, en la gramática de la marca de Cuentas Claras: loseta, margen rojo, renglones y candado. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="loseta" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" style="stop-color:var(--marca-loseta-1)"/><stop offset="1" style="stop-color:var(--marca-loseta-2)"/>
+    </linearGradient>
+    <linearGradient id="canto" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".35" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity=".05"/>
+    </linearGradient>
+    <symbol id="isotipo" viewBox="0 0 512 512">
+      <rect x="32" y="32" width="448" height="448" rx="100" fill="url(#loseta)"/>
+      <rect x="34" y="34" width="444" height="444" rx="98" fill="none" stroke="url(#canto)" stroke-width="4"/>
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--marca-tinta)">
+        <path d="M138 92V420" stroke-width="30" style="stroke:var(--marca-margen)"/>
+        <path d="M92 170H420M92 256H230" stroke-width="30"/>
+        <path d="M304 282V250a50 50 0 0 1 100 0V282" stroke-width="30"/>
+        <rect x="270" y="282" width="168" height="136" rx="30" stroke-width="30"/>
+        <path d="M354 334V366" stroke-width="32"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<section id="bloqueo">
+  <form id="form-bloqueo" class="vidrio marco">
+    <div class="marca"><svg width="40" height="40" aria-hidden="true"><use href="#isotipo"/></svg><b>Bóveda</b></div>
+    <h1 id="titulo-bloqueo">Bóveda bloqueada</h1>
+    <p id="ayuda-bloqueo"></p>
+    <label for="maestra">Contraseña maestra</label>
+    <input id="maestra" type="password" autocomplete="current-password" required autofocus>
+    <div id="grupo-confirmar" hidden>
+      <label for="confirmar">Repítela</label>
+      <input id="confirmar" type="password" autocomplete="new-password">
+    </div>
+    <p class="error" id="error-bloqueo" role="alert"></p>
+    <button class="primario" id="btn-bloqueo">Desbloquear</button>
+    <button type="button" id="btn-hello" hidden>Entrar con Windows Hello</button>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <aside class="vidrio marco">
+    <div class="marca"><svg width="32" height="32" aria-hidden="true"><use href="#isotipo"/></svg><b>Bóveda</b></div>
+    <h2>Carpetas</h2>
+    <nav id="carpetas" aria-label="Carpetas"></nav>
+    <button id="btn-nueva-carpeta" data-icono="mas">Carpeta</button>
+  </aside>
+  <main>
+    <div class="barra vidrio">
+      <input id="buscar" type="search" placeholder="Buscar por nombre, usuario, sitio o nota" aria-label="Buscar">
+      <button class="primario" id="btn-nueva" data-icono="mas">Nueva</button>
+      <button class="icono-boton" id="btn-importar" data-icono="importar" title="Importar CSV" aria-label="Importar CSV"></button>
+      <button class="icono-boton" id="btn-exportar" data-icono="exportar" title="Exportar CSV" aria-label="Exportar CSV"></button>
+      <input id="archivo-csv" type="file" accept=".csv,text/csv" hidden>
+      <button class="icono-boton" id="btn-ajustes" data-icono="ajustes" title="Ajustes" aria-label="Ajustes"></button>
+      <button class="icono-boton" id="btn-bloquear" data-icono="bloquear" title="Bloquear" aria-label="Bloquear"></button>
+    </div>
+    <section class="hoja vidrio">
+      <div class="titulo-vista"><h1 id="titulo-vista">Todas</h1><span id="acciones-vista" class="acciones-fila"></span></div>
+      <ul id="lista"></ul>
+      <p id="vacio" hidden>No hay entradas.</p>
+    </section>
+  </main>
+</div>
+
+<dialog id="dlg-entrada">
+  <form id="form-entrada" method="dialog">
+    <h2 id="titulo-entrada">Entrada</h2>
+    <label for="f-nombre">Nombre</label><input id="f-nombre" name="nombre" required>
+    <fieldset><legend>Ícono y color</legend><div id="selector-entrada"></div></fieldset>
+    <label for="f-usuario">Usuario</label><input id="f-usuario" name="usuario" autocomplete="off">
+    <label for="f-password">Contraseña</label>
+    <div class="fila">
+      <input id="f-password" name="password" type="password" autocomplete="off">
+      <button type="button" class="icono-boton" id="btn-ver" data-icono="ver" title="Mostrar contraseña" aria-label="Mostrar contraseña"></button>
+      <button type="button" class="icono-boton" id="btn-generar" data-icono="generar" title="Generar contraseña" aria-label="Generar contraseña"></button>
+    </div>
+    <label for="f-url">Sitio web</label><input id="f-url" name="url" type="text" placeholder="https://">
+    <div class="rejilla">
+      <div><label for="f-carpeta">Carpeta</label><input id="f-carpeta" name="carpeta" list="lista-carpetas" placeholder="Sin carpeta"></div>
+      <div><label for="f-totp">Clave 2FA (TOTP)</label><input id="f-totp" name="totp" autocomplete="off"></div>
+    </div>
+    <datalist id="lista-carpetas"></datalist>
+    <label for="f-notas">Notas</label><textarea id="f-notas" name="notas" rows="3"></textarea>
+    <div class="acciones">
+      <button type="button" class="peligro" id="btn-eliminar">Mover a la papelera</button>
+      <button type="button" id="btn-cancelar">Cancelar</button>
+      <button class="primario">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-carpeta">
+  <form id="form-carpeta" method="dialog">
+    <h2 id="titulo-carpeta">Nueva carpeta</h2>
+    <label for="c-nombre">Nombre</label><input id="c-nombre" required maxlength="60">
+    <fieldset><legend>Ícono y color</legend><div id="selector-carpeta"></div></fieldset>
+    <p class="error" id="error-carpeta" role="alert"></p>
+    <div class="acciones">
+      <button type="button" id="btn-cancelar-carpeta">Cancelar</button>
+      <button class="primario">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-maestra">
+  <form id="form-maestra" method="dialog">
+    <h2>Cambiar contraseña maestra</h2>
+    <label for="m-actual">Contraseña actual</label><input id="m-actual" type="password" required autocomplete="current-password">
+    <label for="m-nueva">Nueva (mínimo 12 caracteres)</label><input id="m-nueva" type="password" required autocomplete="new-password">
+    <label for="m-confirmar">Repite la nueva</label><input id="m-confirmar" type="password" required autocomplete="new-password">
+    <p class="error" id="error-maestra" role="alert"></p>
+    <div class="acciones">
+      <button type="button" id="btn-cancelar-maestra">Cancelar</button>
+      <button class="primario" id="btn-cambiar-maestra">Cambiar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-hello">
+  <form id="form-hello" method="dialog">
+    <h2>Activar Windows Hello</h2>
+    <p>Podrás entrar con tu PIN, huella o cara de Windows. Tu contraseña maestra seguirá funcionando.</p>
+    <label for="h-maestra">Confirma tu contraseña maestra</label><input id="h-maestra" type="password" required autocomplete="current-password">
+    <p class="error" id="error-hello" role="alert"></p>
+    <div class="acciones">
+      <button type="button" id="btn-cancelar-hello">Cancelar</button>
+      <button class="primario" id="btn-activar-hello">Activar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-exportar">
+  <form id="form-exportar" method="dialog">
+    <h2>Exportar a CSV</h2>
+    <p>El archivo tendrá tus contraseñas <strong>sin cifrar</strong>, en el formato de Bitwarden. Guárdalo en un lugar seguro y bórralo cuando ya no lo necesites. La papelera no se exporta.</p>
+    <label for="x-maestra">Confirma tu contraseña maestra</label><input id="x-maestra" type="password" required autocomplete="current-password">
+    <p class="error" id="error-exportar" role="alert"></p>
+    <div class="acciones">
+      <button type="button" id="btn-cancelar-exportar">Cancelar</button>
+      <button class="primario" id="btn-confirmar-exportar">Exportar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-ajustes">
+  <form id="form-ajustes" method="dialog">
+    <h2>Ajustes</h2>
+    <div class="rejilla">
+      <div><label for="a-tema">Tema</label>
+        <select id="a-tema" name="tema">
+          <option value="vidrio">Papel de vidrio claro</option><option value="vidrio-oscuro">Papel de vidrio oscuro</option>
+          <option value="sistema">Según Windows</option><option value="terminal">Terminal</option>
+        </select></div>
+      <div><label for="a-acento">Color de acento</label><input id="a-acento" name="acento" type="color"></div>
+      <div><label for="a-letra">Tamaño de letra (px)</label><input id="a-letra" name="letra" type="number" min="12" max="24"></div>
+      <div><label for="a-radio">Redondeo de esquinas (px)</label><input id="a-radio" name="radio" type="number" min="0" max="24"></div>
+      <div><label for="a-bloqueo">Bloqueo por inactividad (min)</label><input id="a-bloqueo" name="bloqueoMin" type="number" min="1" max="240"></div>
+      <div><label for="a-portapapeles">Borrar portapapeles tras (s)</label><input id="a-portapapeles" name="portapapelesSeg" type="number" min="5" max="600"></div>
+      <div><label for="a-orden">Orden de la lista</label>
+        <select id="a-orden" name="orden"><option value="nombre">Por nombre</option><option value="reciente">Editadas recientemente</option></select></div>
+      <div><label for="a-long">Longitud del generador</label><input id="a-long" name="genLong" type="number" min="4" max="128"></div>
+    </div>
+    <label>Caracteres del generador</label>
+    <label class="check"><input type="checkbox" name="mayus"> Mayúsculas</label>
+    <label class="check"><input type="checkbox" name="minus"> Minúsculas</label>
+    <label class="check"><input type="checkbox" name="numeros"> Números</label>
+    <label class="check"><input type="checkbox" name="simbolos"> Símbolos</label>
+    <div class="acciones">
+      <button type="button" class="izquierda" id="btn-hello-ajustes">Activar Windows Hello</button>
+      <button type="button" id="btn-abrir-maestra">Cambiar contraseña maestra</button>
+      <button class="primario">Listo</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="aviso" role="status" hidden></div>
+<script type="module" src="/app.js"></script>
+</body>
+</html>
