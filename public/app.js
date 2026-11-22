@@ -1,7 +1,9 @@
 import { nueva, abrir, cifrar, importarCSV, exportarCSV, generar, purgarPapelera, DIAS_PAPELERA, llaveDe, abrirConLlave } from './vault.js';
 import { ELEGIBLES, UI } from './iconos.js';
 
-const TOKEN = document.querySelector('meta[name=token]').content;
+// Comandos nativos de Tauri (src-tauri/src/lib.rs). Los errores llegan como texto (p. ej. el motivo de Windows Hello).
+const { invoke } = window.__TAURI__.core;
+const helloActivo = () => invoke('hello_estado').catch(() => false);
 const $ = (s) => document.querySelector(s);
 const el = (tag, props = {}, ...hijos) => { const n = Object.assign(document.createElement(tag), props); n.append(...hijos); return n; };
 
@@ -56,13 +58,6 @@ function avisar(texto) {
   clearTimeout(avisar.t); avisar.t = setTimeout(() => { a.hidden = true; }, 3500);
 }
 
-async function api(method, ruta, cuerpo) {
-  const r = await fetch(ruta, { method, headers: { 'x-token': TOKEN, 'Content-Type': 'application/json' }, body: cuerpo && JSON.stringify(cuerpo) });
-  if (method === 'GET' && r.status === 404) return null;
-  const datos = r.headers.get('content-type')?.includes('json') ? await r.json() : null;
-  if (!r.ok) throw Object.assign(new Error('El servidor respondió ' + r.status), { motivo: datos?.motivo });
-  return datos;
-}
 
 const MOTIVOS_HELLO = {
   Canceled: 'Cancelaste la verificación de Windows Hello.',
@@ -72,14 +67,14 @@ const MOTIVOS_HELLO = {
   RetriesExhausted: 'Demasiados intentos fallidos de Windows Hello.',
   DeviceBusy: 'Windows Hello está ocupado; intenta de nuevo.',
 };
-const motivoHello = (e) => MOTIVOS_HELLO[e.motivo] || 'No se pudo usar Windows Hello.';
+const motivoHello = (e) => MOTIVOS_HELLO[e] || 'No se pudo usar Windows Hello.';
 
 async function guardar() {
   try {
     archivo = await cifrar({ entradas, carpetas, estilos }, sesion);
-    await api('PUT', '/api/boveda', archivo);
+    await invoke('guardar_boveda', { contenido: JSON.stringify(archivo) });
   } catch (e) {
-    avisar('No se pudo guardar: ' + e.message + '. Cierra y vuelve a abrir la Bóveda.');
+    avisar('No se pudo guardar: ' + (e.message || e) + '. Revisa que la carpeta de Bóveda no sea de solo lectura.');
     throw e;
   }
 }
@@ -147,13 +142,16 @@ async function pantallaBloqueo() {
   for (const d of document.querySelectorAll('dialog[open]')) d.close();
   $('#app').hidden = true; $('#bloqueo').hidden = false;
   $('#maestra').value = ''; $('#confirmar').value = ''; $('#error-bloqueo').textContent = '';
-  try { archivo = await api('GET', '/api/boveda'); } catch { $('#error-bloqueo').textContent = 'No hay conexión. Cierra esta ventana y abre Boveda.exe otra vez.'; return; }
+  try {
+    const texto = await invoke('leer_boveda');
+    archivo = texto ? JSON.parse(texto) : null;
+  } catch (e) { $('#error-bloqueo').textContent = 'No se pudo leer boveda.json: ' + e; return; }
   const crear = !archivo;
   $('#titulo-bloqueo').textContent = crear ? 'Crea tu bóveda' : 'Bóveda bloqueada';
   $('#ayuda-bloqueo').textContent = crear ? 'Elige una contraseña maestra de al menos 12 caracteres. Si la olvidas, no hay forma de recuperar tus datos.' : '';
   $('#grupo-confirmar').hidden = !crear;
   $('#btn-bloqueo').textContent = crear ? 'Crear bóveda' : 'Desbloquear';
-  $('#btn-hello').hidden = crear || !(await api('GET', '/api/hello').catch(() => null))?.activo;
+  $('#btn-hello').hidden = crear || !(await helloActivo());
   $('#maestra').focus();
 }
 
@@ -194,10 +192,10 @@ $('#btn-hello').onclick = async () => {
   const error = $('#error-bloqueo'), btn = $('#btn-hello');
   error.textContent = ''; btn.disabled = true;
   try {
-    const { llave } = await api('POST', '/api/hello/desbloquear');
+    const llave = await invoke('hello_desbloquear');
     let abierta;
     try { abierta = await abrirConLlave(archivo, llave); } catch {
-      await api('DELETE', '/api/hello');
+      await invoke('hello_borrar');
       btn.hidden = true;
       error.textContent = 'Windows Hello ya no corresponde a esta bóveda. Entra con tu contraseña y actívalo de nuevo en Ajustes.';
       return;
@@ -300,7 +298,7 @@ function abrible(u) {
 }
 
 async function abrirSitio(url) {
-  try { await api('POST', '/api/abrir', { url }); } catch { avisar('No se pudo abrir el sitio.'); }
+  try { await invoke('abrir_url', { url }); } catch { avisar('No se pudo abrir el sitio.'); }
 }
 
 async function copiar(texto, mensaje) {
@@ -438,12 +436,12 @@ formExportar.onsubmit = async (ev) => {
   try {
     try { await abrir(archivo, $('#x-maestra').value); } catch { $('#error-exportar').textContent = 'Contraseña incorrecta.'; return; }
     const activas = entradas.filter((e) => !e.borrada);
-    const url = URL.createObjectURL(new Blob([exportarCSV(activas)], { type: 'text/csv;charset=utf-8' }));
     const hoy = new Date().toLocaleDateString('sv-SE'); // AAAA-MM-DD
-    el('a', { href: url, download: `boveda-${hoy}.csv` }).click();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    let ruta;
+    try { ruta = await invoke('exportar_csv', { contenido: exportarCSV(activas), nombre: `boveda-${hoy}.csv` }); }
+    catch (e) { $('#error-exportar').textContent = 'No se pudo guardar el archivo: ' + e; return; }
     formExportar.reset(); $('#dlg-exportar').close();
-    avisar(`Exportadas ${activas.length} entradas a Descargas. Bórralo cuando ya no lo necesites.`);
+    avisar(`Exportadas ${activas.length} entradas a ${ruta}. Bórralo cuando ya no lo necesites.`);
   } finally { btn.disabled = false; }
 };
 
@@ -452,7 +450,7 @@ const formAjustes = $('#form-ajustes');
 $('#btn-ajustes').onclick = async () => {
   for (const i of formAjustes.elements) if (i.name) i[i.type === 'checkbox' ? 'checked' : 'value'] = ajustes[i.name];
   mostrarAcento();
-  const activo = (await api('GET', '/api/hello').catch(() => null))?.activo;
+  const activo = await helloActivo();
   $('#btn-hello-ajustes').textContent = activo ? 'Desactivar Windows Hello' : 'Activar Windows Hello';
   $('#dlg-ajustes').showModal();
 };
@@ -476,8 +474,8 @@ function mostrarAcento() {
 // ---------- Windows Hello ----------
 const formHello = $('#form-hello');
 $('#btn-hello-ajustes').onclick = async () => {
-  if ((await api('GET', '/api/hello'))?.activo) {
-    await api('DELETE', '/api/hello');
+  if (await helloActivo()) {
+    await invoke('hello_borrar');
     $('#btn-hello-ajustes').textContent = 'Activar Windows Hello';
     avisar('Windows Hello desactivado. Entra con tu contraseña maestra.');
     return;
@@ -495,7 +493,7 @@ formHello.onsubmit = async (ev) => {
     let llave;
     try { llave = await llaveDe(archivo, $('#h-maestra').value); } catch { error.textContent = 'Contraseña incorrecta.'; return; }
     error.textContent = 'Confirma con Windows Hello en la ventana que aparece…';
-    try { await api('POST', '/api/hello', { llave }); } catch (e) { error.textContent = motivoHello(e); return; }
+    try { await invoke('hello_activar', { llave }); } catch (e) { error.textContent = motivoHello(e); return; }
     formHello.reset(); $('#dlg-hello').close();
     avisar('Windows Hello activado. La próxima vez podrás entrar con él.');
   } finally { btn.disabled = false; }
@@ -523,8 +521,8 @@ formMaestra.onsubmit = async (ev) => {
     await guardar(); // segunda vez: así boveda.json.bak tampoco queda cifrado con la contraseña anterior
     formMaestra.reset(); $('#dlg-maestra').close();
     // la llave de Windows Hello era de la contraseña anterior
-    const conHello = (await api('GET', '/api/hello'))?.activo;
-    if (conHello) await api('DELETE', '/api/hello');
+    const conHello = await helloActivo();
+    if (conHello) await invoke('hello_borrar');
     avisar(conHello ? 'Contraseña maestra cambiada. Vuelve a activar Windows Hello en Ajustes.' : 'Contraseña maestra cambiada.');
   } finally { btn.disabled = false; }
 };

@@ -8,6 +8,8 @@ hello.dat
 *.exe
 dist/
 *.zip
+src-tauri/target/
+src-tauri/gen/
 
 # Sistema y editores
 node_modules/

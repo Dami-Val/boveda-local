@@ -10,7 +10,7 @@
 - 🗑️ **Papelera de 30 días:** lo que borras se puede recuperar durante un mes.
 - 📥📤 **Importa y exporta CSV:** compatible con Bitwarden, Chrome, Edge y Firefox.
 - 🎨 **Personalizable:** temas Papel de vidrio claro, oscuro, «según Windows» y Terminal, color de acento, tamaño de letra, esquinas, bloqueo automático y generador de contraseñas.
-- 💼 **Portátil:** un solo `.exe`. Llévalo en una USB junto con tu bóveda.
+- 💼 **Portátil y ligera:** un solo `.exe` de unos 3 MB, hecho con [Tauri](https://tauri.app). Llévalo en una USB junto con tu bóveda.
 
 > **Próximamente disponible para Linux y Android.**
 
@@ -22,7 +22,9 @@
 2. Descomprímelo en una carpeta tuya, por ejemplo `Documentos\Boveda`.
 3. Abre **`Boveda.exe`**.
 
-**Requisitos:** Windows 10 u 11 con Microsoft Edge (viene instalado en Windows). No hace falta instalar nada más.
+**Requisitos:** Windows 10 u 11 con **WebView2**, que ya viene incluido en Windows 11 y en Windows 10 actualizado. Si la app no abre, instala el [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) de Microsoft. No hace falta nada más.
+
+**¿Vienes de la versión 1?** Copia tu `boveda.json` (y `hello.dat`, si lo tienes) junto al nuevo `Boveda.exe`. El formato es el mismo.
 
 > **Windows SmartScreen** puede mostrar «Windows protegió tu PC» porque el programa no está firmado. Haz clic en **Más información → Ejecutar de todas formas**. Si lo prefieres, puedes [compilarlo tú](#compilar-desde-el-código).
 
@@ -112,7 +114,7 @@ Todo vive junto a `Boveda.exe`:
 ## Seguridad: cómo funciona
 
 - El cifrado y el descifrado ocurren **dentro de la ventana de la app** (WebCrypto). El disco solo recibe datos ya cifrados.
-- `Boveda.exe` levanta un pequeño servidor **solo en `127.0.0.1`** (no es accesible desde la red) y abre una ventana de Edge en modo aplicación con un perfil propio. Cada arranque genera un token aleatorio; sin él, ninguna otra página puede leer ni escribir tu bóveda. Además se revisa el encabezado `Host` (contra *DNS rebinding*) y la página usa una política CSP estricta.
+- `Boveda.exe` es una app nativa hecha con **Tauri**. No abre puertos ni servidores: la interfaz habla con la parte nativa (Rust) solo por el canal interno de Tauri, y la página usa una política CSP estricta. Solo puede haber **una instancia** abierta a la vez.
 - Cada guardado es **atómico** (se escribe a un temporal y se renombra), así que un corte de luz no deja el archivo a medias.
 - **Windows Hello** guarda la llave protegida con **DPAPI** (tu cuenta de Windows) y solo la entrega tras verificar tu PIN, huella o cara. Es el mismo nivel de protección que las contraseñas guardadas en Chrome o Edge. Si te preocupa que un programa malicioso corra con tu sesión, deja Windows Hello desactivado.
 - La app se **bloquea sola** tras unos minutos sin uso.
@@ -123,36 +125,38 @@ Todo vive junto a `Boveda.exe`:
 
 **Olvidé mi contraseña maestra.** No hay forma de recuperarla. Si quieres empezar de cero, cierra la app, renombra `boveda.json` (por ejemplo a `boveda.json.antigua`) y vuelve a abrirla.
 
-**Abrí la app y se ve una versión anterior.** Ya había una Bóveda abierta y el programa solo trajo esa ventana al frente. Ciérrala y abre `Boveda.exe` de nuevo.
+**Abro el `.exe` y solo aparece la ventana que ya tenía.** Es a propósito: solo puede haber una Bóveda abierta. Si acabas de actualizar, cierra la ventana y vuelve a abrir el `.exe`.
 
-**¿Por qué pesa tanto el `.exe`?** Lleva dentro su propio motor (Node.js), para que no tengas que instalar nada.
+**¿Por qué pesa tan poco?** Usa **WebView2**, el motor web que ya trae Windows, en lugar de llevar un navegador completo adentro.
 
 ---
 
 ## Compilar desde el código
 
-Necesitas [Node.js](https://nodejs.org) 22 o superior. El proyecto no tiene dependencias.
+Necesitas [Node.js](https://nodejs.org) 22 o superior, [Rust](https://rustup.rs) y los [requisitos de Tauri para Windows](https://tauri.app/start/prerequisites/) (las herramientas de C++ de Visual Studio).
 
 ```bash
-npm test            # pruebas de cifrado, CSV, papelera y generador
-npm run iniciar     # abre la app desde el código (usa boveda.json en esta carpeta)
-npm run construir   # genera Boveda.exe (descarga la herramienta oficial postject)
+npm install                       # instala la CLI de Tauri
+npm test                          # pruebas de cifrado, CSV, papelera y generador
+cd src-tauri && cargo test        # pruebas del guardado y de DPAPI
+npm run dev                       # abre la app en modo desarrollo
+npm run construir                 # genera src-tauri/target/release/boveda.exe
 ```
 
 | Archivo | Qué contiene |
 | --- | --- |
-| `server.cjs` | Servidor local, Windows Hello (DPAPI) y ventana de Edge |
 | `public/vault.js` | Cifrado, lectura y escritura de CSV, generador y papelera (código puro, probado en `test.mjs`) |
 | `public/app.js` · `public/index.html` | Interfaz |
 | `public/iconos.js` | Íconos Phosphor |
-| `construir.cjs` | Empaquetado como ejecutable único de Node |
+| `src-tauri/src/lib.rs` | Parte nativa: guardado atómico junto al `.exe`, Windows Hello con DPAPI, abrir sitios, exportar a Descargas y una sola instancia |
+| `src-tauri/tauri.conf.json` | Ventana, CSP e íconos |
 
-Variables solo para desarrollo: `BOVEDA_PUERTO` (por defecto 4777) y `BOVEDA_PERFIL` (carpeta del perfil de Edge).
+Variable solo para desarrollo: `BOVEDA_DIR`, para guardar la bóveda en otra carpeta.
 
 ## Hoja de ruta
 
-- 🐧 **Linux:** próximamente.
-- 🤖 **Android:** próximamente.
+- 🐧 **Linux:** próximamente (Tauri ya lo permite; falta adaptar el desbloqueo biométrico).
+- 🤖 **Android:** próximamente (Tauri 2 lo permite).
 - Códigos 2FA (TOTP) en la app.
 
 ## Créditos
